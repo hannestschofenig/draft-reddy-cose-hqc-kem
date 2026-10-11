@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Hamming Quasi-Cyclic (HQC) Key Encapsulation Mechanisms for COSE</title>
+<meta content="Hannes Tschofenig" name="author">
+<meta content="Tirumaleswar Reddy" name="author">
+<meta content="
+       This document extends the Post-Quantum Key Encapsulation Mechanisms
+(PQ KEMs) for COSE framework with Hamming Quasi-Cyclic (HQC). It defines
+HQC recipient algorithms for Direct Key Agreement and Key Agreement
+with Key Wrap, and specifies the representation of HQC keys using the
+Algorithm Key Pair (AKP) key type. It reuses the framework's key
+derivation and encapsulated-key transport and requests six COSE
+algorithm registrations. 
+    " name="description">
+<meta content="xml2rfc 3.34.1" name="generator">
+<meta content="COSE" name="keyword">
+<meta content="HQC" name="keyword">
+<meta content="Post-Quantum Cryptography" name="keyword">
+<meta content="Key Encapsulation Mechanism" name="keyword">
+<meta content="draft-reddy-cose-hqc-kem-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.34.1
+    Python 3.14.8
+    ConfigArgParse 1.8.0
+    google-i18n-address 3.1.1
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.12.2
+    pycountry 24.6.1
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.9.1
+-->
+<link href="draft-reddy-cose-hqc-kem.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
+}
+svg {
+  display: block;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
+}
+.alignCenter {
+  margin: 1em 0;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+      float: none;
+    }
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a {
+  text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
+}
+.iref + a[href].internal {
+  color: var(--text-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
+  }
+  @media print {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+  & .prepared {
+    float: right;
+  }
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
+  }
+}
+
+/* Comments */
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
+      }
+    }
+    & a.toplink {
+      float: right;
+    }
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
+    }
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc {
+    page-break-before: always;
+    border-top: none;
+    padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">HQC KEM for COSE</td>
+<td class="right">October 2026</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Tschofenig &amp; Reddy</td>
+<td class="center">Expires 14 April 2027</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">COSE</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-reddy-cose-hqc-kem-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2026-10-11" class="published">11 October 2026</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2027-04-14">14 April 2027</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">H. Tschofenig</div>
+<div class="org">UniBw M.</div>
+</div>
+<div class="author">
+      <div class="author-name">T. Reddy</div>
+<div class="org">Nokia</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Hamming Quasi-Cyclic (HQC) Key Encapsulation Mechanisms for COSE</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This document extends the Post-Quantum Key Encapsulation Mechanisms
+(PQ KEMs) for COSE framework with Hamming Quasi-Cyclic (HQC). It defines
+HQC recipient algorithms for Direct Key Agreement and Key Agreement
+with Key Wrap, and specifies the representation of HQC keys using the
+Algorithm Key Pair (AKP) key type. It reuses the framework's key
+derivation and encapsulated-key transport and requests six COSE
+algorithm registrations.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 14 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2026 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-hqc-algorithms" class="internal xref">HQC Algorithms</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-cose-algorithm-identifiers" class="internal xref">COSE Algorithm Identifiers</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-using-hqc-in-the-pq-kem-fra" class="internal xref">Using HQC in the PQ-KEM Framework</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-encapsulation-and-decapsula" class="internal xref">Encapsulation and Decapsulation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-key-derivation" class="internal xref">Key Derivation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-headers-and-ciphertext-tran" class="internal xref">Headers and Ciphertext Transport</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-direct-key-agreement" class="internal xref">Direct Key Agreement</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-key-agreement-with-key-wrap" class="internal xref">Key Agreement with Key Wrap</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-hqc-cose-keys" class="internal xref">HQC COSE Keys</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-examples" class="internal xref">Examples</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#appendix-A.1" class="auto internal xref">A.1</a>.  <a href="#name-public-and-private-keys" class="internal xref">Public and Private Keys</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#appendix-A.2" class="auto internal xref">A.2</a>.  <a href="#name-direct-mode-with-a128gcm" class="internal xref">Direct Mode with A128GCM</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
+                <p id="section-toc.1-1.9.2.3.1"><a href="#appendix-A.3" class="auto internal xref">A.3</a>.  <a href="#name-wrap-mode-with-a256gcm" class="internal xref">Wrap Mode with A256GCM</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1"><span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span> defines a framework for using post-quantum key encapsulation
+mechanisms with CBOR Object Signing and Encryption (COSE) <span>[<a href="#RFC9052" class="cite xref">RFC9052</a>]</span>,
+and instantiates that framework with ML-KEM. This document adds HQC as
+another KEM within that framework.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">HQC is code-based, providing a different mathematical foundation from
+ML-KEM. NIST selected HQC for standardization following its fourth-round
+evaluation <span>[<a href="#NIST.IR.8545" class="cite xref">NIST.IR.8545</a>]</span>. This document uses the HQC submission
+specification <span>[<a href="#HQC" class="cite xref">HQC</a>]</span>. The publication of this specification will
+advance once a final NIST HQC standard becomes available.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">The generic processing in Sections 4.2, 4.3, 5, and 6 of <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>
+applies with the HQC KEM selected by this document. This document
+supplies the additional algorithm registrations and HQC key
+representation.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">The extension defines three Direct Key Agreement algorithms and three
+Key Agreement with Key Wrap algorithms. It specifies the HQC inputs to
+the existing processing model. This specification focuses on the COSE
+functionality and does not define JOSE algorithms.<a href="#section-1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-2">
+      <h2 id="name-conventions-and-definitions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      </h2>
+<p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">The terms Direct Key Agreement, Key Agreement with Key Wrap, Content
+Encryption Key (CEK), and COSE_Recipient are used as in <span>[<a href="#RFC9052" class="cite xref">RFC9052</a>]</span> and
+<span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>. KEK denotes the key-encryption key used to wrap a CEK.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3">This document uses <code>pk</code> for an HQC public encapsulation key, <code>sk</code> for
+the corresponding private decapsulation key, <code>CT</code> for a KEM ciphertext,
+and <code>SS'</code> for the KEM shared secret. The COSE header parameter <code>ek</code>
+carries <code>CT</code>; it does not carry <code>pk</code>. All lengths in octets refer to
+raw values before CBOR encoding <span>[<a href="#RFC8949" class="cite xref">RFC8949</a>]</span>.<a href="#section-2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="hqc-algorithms">
+<section id="section-3">
+      <h2 id="name-hqc-algorithms">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-hqc-algorithms" class="section-name selfRef">HQC Algorithms</a>
+      </h2>
+<p id="section-3-1">Implementations <span class="bcp14">MUST</span> use HQC-KEM from Section 3.6 of <span>[<a href="#HQC" class="cite xref">HQC</a>]</span>, with the
+parameter sets and byte encodings of that specification. HQC-PKE alone
+<span class="bcp14">MUST NOT</span> be used in its place.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<span id="name-hqc-lengths-in-octets-hqc-s"></span><div id="hqc-sizes">
+<table class="center" id="table-1">
+        <caption>
+<a href="#table-1" class="selfRef">Table 1</a>:
+<a href="#name-hqc-lengths-in-octets-hqc-s" class="selfRef">HQC lengths in octets (HQC specification, Section 4)</a>
+        </caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Parameter set</th>
+            <th class="text-right" rowspan="1" colspan="1">NIST category</th>
+            <th class="text-right" rowspan="1" colspan="1">Public key</th>
+            <th class="text-right" rowspan="1" colspan="1">Private seed</th>
+            <th class="text-right" rowspan="1" colspan="1">Ciphertext</th>
+            <th class="text-right" rowspan="1" colspan="1">Shared secret</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-1</td>
+            <td class="text-right" rowspan="1" colspan="1">1</td>
+            <td class="text-right" rowspan="1" colspan="1">2241</td>
+            <td class="text-right" rowspan="1" colspan="1">32</td>
+            <td class="text-right" rowspan="1" colspan="1">4433</td>
+            <td class="text-right" rowspan="1" colspan="1">32</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-3</td>
+            <td class="text-right" rowspan="1" colspan="1">3</td>
+            <td class="text-right" rowspan="1" colspan="1">4514</td>
+            <td class="text-right" rowspan="1" colspan="1">32</td>
+            <td class="text-right" rowspan="1" colspan="1">8978</td>
+            <td class="text-right" rowspan="1" colspan="1">32</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-5</td>
+            <td class="text-right" rowspan="1" colspan="1">5</td>
+            <td class="text-right" rowspan="1" colspan="1">7237</td>
+            <td class="text-right" rowspan="1" colspan="1">32</td>
+            <td class="text-right" rowspan="1" colspan="1">14421</td>
+            <td class="text-right" rowspan="1" colspan="1">32</td>
+          </tr>
+        </tbody>
+      </table>
+</div>
+<p id="section-3-3">This profile defines only the compressed private seed based on <span>[<a href="#HQC" class="cite xref">HQC</a>]</span>.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<div id="algorithms">
+<section id="section-3.1">
+        <h3 id="name-cose-algorithm-identifiers">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-cose-algorithm-identifiers" class="section-name selfRef">COSE Algorithm Identifiers</a>
+        </h3>
+<p id="section-3.1-1">Each identifier in <a href="#suites" class="auto internal xref">Table 2</a> selects the KEM, KMAC256 key derivation,
+and the mode. The key-wrap identifiers also select the AES Key Wrap
+algorithm.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<span id="name-hqc-cose-recipient-algorith"></span><div id="suites">
+<table class="center" id="table-2">
+          <caption>
+<a href="#table-2" class="selfRef">Table 2</a>:
+<a href="#name-hqc-cose-recipient-algorith" class="selfRef">HQC COSE recipient algorithms</a>
+          </caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Name</th>
+              <th class="text-left" rowspan="1" colspan="1">Value</th>
+              <th class="text-left" rowspan="1" colspan="1">KEM</th>
+              <th class="text-left" rowspan="1" colspan="1">Mode</th>
+              <th class="text-left" rowspan="1" colspan="1">Wrap</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">HQC-1</td>
+              <td class="text-left" rowspan="1" colspan="1">TBD-HQC-1</td>
+              <td class="text-left" rowspan="1" colspan="1">HQC-1</td>
+              <td class="text-left" rowspan="1" colspan="1">Direct</td>
+              <td class="text-left" rowspan="1" colspan="1">None</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">HQC-3</td>
+              <td class="text-left" rowspan="1" colspan="1">TBD-HQC-3</td>
+              <td class="text-left" rowspan="1" colspan="1">HQC-3</td>
+              <td class="text-left" rowspan="1" colspan="1">Direct</td>
+              <td class="text-left" rowspan="1" colspan="1">None</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">HQC-5</td>
+              <td class="text-left" rowspan="1" colspan="1">TBD-HQC-5</td>
+              <td class="text-left" rowspan="1" colspan="1">HQC-5</td>
+              <td class="text-left" rowspan="1" colspan="1">Direct</td>
+              <td class="text-left" rowspan="1" colspan="1">None</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">HQC-1+A128KW</td>
+              <td class="text-left" rowspan="1" colspan="1">TBD-HQC-1-KW</td>
+              <td class="text-left" rowspan="1" colspan="1">HQC-1</td>
+              <td class="text-left" rowspan="1" colspan="1">Wrap</td>
+              <td class="text-left" rowspan="1" colspan="1">A128KW</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">HQC-3+A192KW</td>
+              <td class="text-left" rowspan="1" colspan="1">TBD-HQC-3-KW</td>
+              <td class="text-left" rowspan="1" colspan="1">HQC-3</td>
+              <td class="text-left" rowspan="1" colspan="1">Wrap</td>
+              <td class="text-left" rowspan="1" colspan="1">A192KW</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">HQC-5+A256KW</td>
+              <td class="text-left" rowspan="1" colspan="1">TBD-HQC-5-KW</td>
+              <td class="text-left" rowspan="1" colspan="1">HQC-5</td>
+              <td class="text-left" rowspan="1" colspan="1">Wrap</td>
+              <td class="text-left" rowspan="1" colspan="1">A256KW</td>
+            </tr>
+          </tbody>
+        </table>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="processing">
+<section id="section-4">
+      <h2 id="name-using-hqc-in-the-pq-kem-fra">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-using-hqc-in-the-pq-kem-fra" class="section-name selfRef">Using HQC in the PQ-KEM Framework</a>
+      </h2>
+<div id="encapsulation-and-decapsulation">
+<section id="section-4.1">
+        <h3 id="name-encapsulation-and-decapsula">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-encapsulation-and-decapsula" class="section-name selfRef">Encapsulation and Decapsulation</a>
+        </h3>
+<p id="section-4.1-1">The sender selects an algorithm from <a href="#suites" class="auto internal xref">Table 2</a> and validates the
+recipient key as specified in <a href="#keys" class="auto internal xref">Section 5</a>. It invokes HQC-KEM.Encaps with
+<code>pk</code>, obtaining the named outputs <code>SS'</code> and <code>CT</code>, and applies the KDF
+from Section 5 of <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span> as profiled in <a href="#kdf" class="auto internal xref">Section 4.2</a>.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">The recipient validates the headers, algorithm/key association, and
+ciphertext length before invoking HQC-KEM.Decaps with <code>sk</code> and <code>CT</code>.
+It applies the same KDF to the resulting <code>SS'</code>. The algorithm inputs
+and outputs are identified by name here because the generic interface
+and processing examples in <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span> use different argument and
+return-value orders.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.1-3">The shared secret <span class="bcp14">MUST NOT</span> be used directly as the CEK or KEK. Both
+parties <span class="bcp14">MUST</span> use the complete HQC-KEM operation, including its specified
+implicit rejection. They <span class="bcp14">MUST NOT</span> substitute a separate COSE-level
+Fujisaki-Okamoto transform. The subsequent KDF serves key derivation
+and context binding.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">Implicit rejection produces a replacement shared secret and is not an
+explicit decapsulation error exposed to the application. Processing
+continues through key derivation and the normal unwrap or content
+authentication checks. If the KEM operation instead reports an explicit
+error, processing <span class="bcp14">MUST</span> stop with a decryption failure, as required by
+Section 4.3 of <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="kdf">
+<section id="section-4.2">
+        <h3 id="name-key-derivation">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-key-derivation" class="section-name selfRef">Key Derivation</a>
+        </h3>
+<p id="section-4.2-1">All six algorithms use KMAC256 with the inputs defined by Section 5.1
+of <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>: the KEM shared secret is <code>K</code>, the encoded context is <code>X</code>,
+the requested output length in bits is <code>L</code>, and the customization string
+<code>S</code> is empty.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">The context is the Section 5.2 <span>[<a href="#RFC9053" class="cite xref">RFC9053</a>]</span> structure with PartyUInfo
+and PartyVInfo omitted, as required by <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>. AlgorithmID denotes
+the algorithm that consumes the derived key: the content-encryption
+algorithm in Direct mode, or A128KW (-3), A192KW (-4), or A256KW (-5)
+in Wrap mode. SuppPubInfo.keyDataLength equals <code>L</code>.
+SuppPubInfo.protected contains the exact recipient protected-header
+byte string. Optional context information follows <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span> and
+<span>[<a href="#RFC9053" class="cite xref">RFC9053</a>]</span> and <span class="bcp14">MUST</span> be agreed by both parties.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2-3">This profile requires the recipient <code>alg</code> to be protected so that the
+selected HQC algorithm, including its mode, is also bound into the KDF
+context. In particular, AlgorithmID alone does not identify the KEM.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.2-4">In Direct mode, <code>L</code> <span class="bcp14">MUST</span> equal the CEK length required by the selected
+content-encryption algorithm. This profile requires at least 128,
+192, or 256 bits of CEK length for HQC-1, HQC-3, or HQC-5, respectively.
+An incompatible content-encryption algorithm <span class="bcp14">MUST</span> be rejected. The
+KDF output <span class="bcp14">MUST NOT</span> be truncated to bypass this requirement.<a href="#section-4.2-4" class="pilcrow">¶</a></p>
+<p id="section-4.2-5">In Wrap mode, <code>L</code> is 128, 192, or 256 bits for HQC-1+A128KW,
+HQC-3+A192KW, or HQC-5+A256KW, respectively. This is the KEK length,
+not the length of the independently generated CEK. The content
+algorithm determines the CEK length. These length requirements do not
+by themselves establish the security strength of the complete message.<a href="#section-4.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="headers">
+<section id="section-4.3">
+        <h3 id="name-headers-and-ciphertext-tran">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-headers-and-ciphertext-tran" class="section-name selfRef">Headers and Ciphertext Transport</a>
+        </h3>
+<p id="section-4.3-1">Both modes use COSE_Encrypt with COSE_Recipient structures as described
+in Section 6 of <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>. The outer <code>alg</code> identifies the content
+encryption algorithm. The recipient <code>alg</code> identifies an algorithm from
+<a href="#suites" class="auto internal xref">Table 2</a>. The recipient <code>alg</code> <span class="bcp14">MUST</span> be in the protected header.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">The sender <span class="bcp14">MUST</span> place the complete <code>CT</code> byte string in the recipient
+<code>ek</code> header parameter reused by <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span> from <span>[<a href="#COSE-HPKE" class="cite xref">COSE-HPKE</a>]</span>.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3-3">The <code>ek</code> <span class="bcp14">MUST</span> be in the recipient unprotected header. This
+placement avoids including the large ciphertext in the KDF context;
+its cryptographic processing is performed by HQC decapsulation.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+<p id="section-4.3-4">The recipient <span class="bcp14">MUST</span> reject a missing <code>ek</code>, a non-byte-string value, or
+a length different from <a href="#hqc-sizes" class="auto internal xref">Table 1</a> for the selected KEM. Normal
+COSE checks for duplicate and conflicting header parameters also apply.
+The sender <span class="bcp14">SHOULD</span> include a recipient <code>kid</code> to identify the intended
+key. A <code>kid</code> is a lookup hint, not proof of key authenticity.<a href="#section-4.3-4" class="pilcrow">¶</a></p>
+<p id="section-4.3-5">The numeric label of the <code>ek</code> header parameter is defined by <span>[<a href="#COSE-HPKE" class="cite xref">COSE-HPKE</a>]</span>.<a href="#section-4.3-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="direct-key-agreement">
+<section id="section-4.4">
+        <h3 id="name-direct-key-agreement">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-direct-key-agreement" class="section-name selfRef">Direct Key Agreement</a>
+        </h3>
+<p id="section-4.4-1">The KDF output is the CEK used for the COSE_Encrypt content. The
+recipient ciphertext field <span class="bcp14">MUST</span> be CBOR <code>null</code>. This profile uses
+exactly one recipient in Direct mode. Applications needing multiple
+recipients use Wrap mode. A fresh encapsulation <span class="bcp14">MUST</span> be performed for
+each new encrypted message.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.4-2">Detached content uses <code>null</code> in the outer ciphertext field, with the
+encrypted content conveyed separately according to <span>[<a href="#RFC9052" class="cite xref">RFC9052</a>]</span>. That
+outer field is distinct from the recipient ciphertext field.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="key-agreement-with-key-wrap">
+<section id="section-4.5">
+        <h3 id="name-key-agreement-with-key-wrap">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-key-agreement-with-key-wrap" class="section-name selfRef">Key Agreement with Key Wrap</a>
+        </h3>
+<p id="section-4.5-1">The sender generates a fresh CEK suitable for the content algorithm
+and encrypts the content once. For each recipient, it performs an
+independent encapsulation, derives that recipient's KEK, and wraps the
+CEK with the AES Key Wrap algorithm selected by <a href="#suites" class="auto internal xref">Table 2</a>. The wrapped
+CEK is placed in the recipient ciphertext field as a byte string.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+<p id="section-4.5-2">The recipient decapsulates <code>ek</code>, derives the KEK, unwraps the CEK, and
+then authenticates and decrypts the content. It <span class="bcp14">MUST NOT</span> release
+plaintext when unwrapping or content authentication fails. Other
+recipient algorithms may be present if permitted by the application;
+the security consequences are discussed in <a href="#security" class="auto internal xref">Section 6</a>.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="keys">
+<section id="section-5">
+      <h2 id="name-hqc-cose-keys">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-hqc-cose-keys" class="section-name selfRef">HQC COSE Keys</a>
+      </h2>
+<p id="section-5-1">HQC keys use AKP as defined in <span>[<a href="#RFC9964" class="cite xref">RFC9964</a>]</span>, following Section 8 of
+<span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>. The required <code>kty</code> (label 1) is 7; <code>alg</code> (label 3) is one
+of the integer identifiers in <a href="#suites" class="auto internal xref">Table 2</a>; and <code>pub</code> (label -1) is the
+raw public-key byte string. A private key additionally includes <code>priv</code>
+(label -2).<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">For HQC, <code>priv</code> <span class="bcp14">MUST</span> contain exactly the 32-octet <code>seedKEM</code> compressed
+representation defined by <span>[<a href="#HQC" class="cite xref">HQC</a>]</span>. The key pair is recovered by the
+specified key-generation procedure using that seed. An implementation
+<span class="bcp14">MUST NOT</span> reinterpret the HQC private key as a seed or private
+key of another algorithm. When importing a private key, the implementation
+<span class="bcp14">MUST</span> regenerate the public key and reject a mismatch with <code>pub</code>.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">Before using a key, implementations <span class="bcp14">MUST</span> verify <code>kty</code>, the selected
+<code>alg</code>, the required byte-string types and lengths, and any applicable
+key-use restrictions. They <span class="bcp14">MUST</span> apply the checks required by <span>[<a href="#HQC" class="cite xref">HQC</a>]</span>.
+Unknown algorithm identifiers and inconsistent key representations
+<span class="bcp14">MUST</span> be rejected.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">Each COSE_Key <span class="bcp14">MUST</span> bind to one recipient algorithm. An HQC-1 key
+object therefore cannot be used as an HQC-1+A128KW key object.
+Applications <span class="bcp14">MUST NOT</span> silently relabel a key to bypass this
+restriction. Provisioning separate key pairs for different
+recipient algorithms is strongly <span class="bcp14">RECOMMENDED</span>.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">If <code>key_ops</code> is present, it <span class="bcp14">MUST</span> permit key derivation (<code>deriveKey</code>,
+value 7). It <span class="bcp14">MUST NOT</span> be interpreted as permission to sign or to use
+the HQC private key directly as a symmetric decryption key.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-6">No <code>crv</code> parameter is used. AKP thumbprints follow Section 6 of
+<span>[<a href="#RFC9964" class="cite xref">RFC9964</a>]</span>. Because <code>alg</code> is included, changing the algorithm binding
+also changes the thumbprint even if the public-key bytes are unchanged.<a href="#section-5-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="security">
+<section id="section-6">
+      <h2 id="name-security-considerations">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-6-1">The security considerations of <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>, <span>[<a href="#RFC9052" class="cite xref">RFC9052</a>]</span>, <span>[<a href="#RFC9053" class="cite xref">RFC9053</a>]</span>,
+and <span>[<a href="#HQC" class="cite xref">HQC</a>]</span> apply. This extension specifies a COSE integration and
+does not provide a security proof for HQC.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">Implementations <span class="bcp14">MUST</span> obtain key-generation and encapsulation randomness
+from a cryptographically secure random number generator. Private seeds,
+expanded private keys, shared secrets, and derived keys <span class="bcp14">MUST</span> be
+protected against disclosure, including through logs and diagnostic
+interfaces. Intermediate KEM values <span class="bcp14">MUST NOT</span> be used as COSE keying
+material or exposed as application data.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">Implementations <span class="bcp14">MUST</span> preserve implicit rejection and avoid externally
+distinguishable secret-dependent error behavior. They <span class="bcp14">SHOULD</span> use
+constant-time implementations for secret-dependent computations.
+Malformed public inputs can be rejected before decapsulation, but
+failure handling <span class="bcp14">MUST NOT</span> disclose whether an internal ciphertext
+consistency test succeeded. A failed unwrap or content authentication
+<span class="bcp14">MUST</span> produce a decryption failure without releasing plaintext.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">Encapsulation does not authenticate the sender: anyone possessing a
+recipient public key can generate an encapsulation. Applications
+requiring sender authentication need to embed HQC into a KEM-based
+authentication protocol or need to apply a signature mechanism.
+Public-key distribution <span class="bcp14">MUST</span> provide the
+recipient-key authenticity required by the application. Possession of
+a <code>kid</code> alone does not provide it.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">Use of a long-lived recipient key does not provide forward secrecy
+against later compromise of its private key. Recorded ciphertexts can
+then be decapsulated. Applications must choose key lifetimes and key
+deletion policies accordingly.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<p id="section-6-6">This profile permits that public-key reuse subject to the KEM and
+application usage limits, but requires fresh encapsulation randomness
+for every new message and every independently encapsulated recipient.<a href="#section-6-6" class="pilcrow">¶</a></p>
+<p id="section-6-7">Algorithm selection <span class="bcp14">MUST</span> be constrained by application policy. For
+multiple recipients, confidentiality depends on every method that can
+recover the CEK. Adding a traditional recipient to the same message
+does not create a post-quantum/traditional hybrid KEM.<a href="#section-6-7" class="pilcrow">¶</a></p>
+<p id="section-6-8">Content encryption, key wrapping, and key derivation can limit overall
+security even when a higher-category KEM is selected. Nonce uniqueness
+and per-key usage limits of the content algorithm still apply. The
+large HQC ciphertexts also require bounded parsing, memory allocation,
+and decapsulation workloads to mitigate denial of service. Each
+additional recipient increases message size and processing cost.
+Applications <span class="bcp14">SHOULD</span> assess the complete encoded COSE message against
+transport, storage, and reassembly limits, including per-recipient
+ciphertexts and wrapped keys.<a href="#section-6-8" class="pilcrow">¶</a></p>
+<p id="section-6-9">Supporting HQC alongside ML-KEM provides algorithm choice based on
+different mathematical assumptions. Selecting one of the standalone
+HQC algorithms in this document does not obtain the combined security
+of the PQ/PQ or PQ/T hybrids. In particular, placing independently
+wrapped copies of a CEK in HQC and ML-KEM recipients allows either
+private key to recover that CEK. it does not require an attacker to
+defeat both KEMs. A claim of security when one component fails
+requires a suitably specified and analyzed hybrid construction,
+including its implementation assumptions.<a href="#section-6-9" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana">
+<section id="section-7">
+      <h2 id="name-iana-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-7-1">IANA is requested to register the six entries below in the "COSE
+Algorithms" registry <span>[<a href="#IANA.cose" class="cite xref">IANA.cose</a>]</span>. Each row supplies Name, Value, and
+Description. All entries have Capabilities <code>[kty]</code>, Change Controller
+<code>IESG</code>, Reference "this document, <a href="#hqc-algorithms" class="auto internal xref">Section 3</a> and <a href="#processing" class="auto internal xref">Section 4</a>",
+and Recommended <code>No</code>, following the registration approach of <span>[<a href="#PQ-KEM" class="cite xref">PQ-KEM</a>]</span>.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-3">
+        <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Name</th>
+            <th class="text-left" rowspan="1" colspan="1">Value</th>
+            <th class="text-left" rowspan="1" colspan="1">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-1</td>
+            <td class="text-left" rowspan="1" colspan="1">TBD-HQC-1</td>
+            <td class="text-left" rowspan="1" colspan="1">HQC-1 with KMAC256, Direct Key Agreement</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-3</td>
+            <td class="text-left" rowspan="1" colspan="1">TBD-HQC-3</td>
+            <td class="text-left" rowspan="1" colspan="1">HQC-3 with KMAC256, Direct Key Agreement</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-5</td>
+            <td class="text-left" rowspan="1" colspan="1">TBD-HQC-5</td>
+            <td class="text-left" rowspan="1" colspan="1">HQC-5 with KMAC256, Direct Key Agreement</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-1+A128KW</td>
+            <td class="text-left" rowspan="1" colspan="1">TBD-HQC-1-KW</td>
+            <td class="text-left" rowspan="1" colspan="1">HQC-1 with KMAC256 and A128KW</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-3+A192KW</td>
+            <td class="text-left" rowspan="1" colspan="1">TBD-HQC-3-KW</td>
+            <td class="text-left" rowspan="1" colspan="1">HQC-3 with KMAC256 and A192KW</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">HQC-5+A256KW</td>
+            <td class="text-left" rowspan="1" colspan="1">TBD-HQC-5-KW</td>
+            <td class="text-left" rowspan="1" colspan="1">HQC-5 with KMAC256 and A256KW</td>
+          </tr>
+        </tbody>
+      </table>
+<p id="section-7-3">HQC parameter selection is carried by <code>alg</code> in an AKP key. No new key
+type, key parameter, header parameter, or JOSE registration is requested.<a href="#section-7-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-8">
+      <h2 id="name-references">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-8.1">
+        <h3 id="name-normative-references">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="COSE-HPKE">[COSE-HPKE]</dt>
+        <dd>
+<span class="refAuthor">Tschofenig, H.</span>, <span class="refAuthor">Jones, M. B.</span>, <span class="refAuthor">Steele, O.</span>, <span class="refAuthor">Daisuke, A.</span>, and <span class="refAuthor">L. Lundblade</span>, <span class="refTitle">"Use of Hybrid Public-Key Encryption (HPKE) with CBOR Object Signing and Encryption (COSE)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-cose-hpke-27</span>, <time datetime="2026-09-12" class="refDate">12 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-cose-hpke-27">https://datatracker.ietf.org/doc/html/draft-ietf-cose-hpke-27</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HQC">[HQC]</dt>
+        <dd>
+<span class="refAuthor">HQC Project</span>, <span class="refTitle">"Hamming Quasi-Cyclic (HQC)"</span>, <time datetime="2025-08-22" class="refDate">22 August 2025</time>, <span>&lt;<a href="https://pqc-hqc.org/doc/hqc_specifications_2025_08_22.pdf">https://pqc-hqc.org/doc/hqc_specifications_2025_08_22.pdf</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="PQ-KEM">[PQ-KEM]</dt>
+        <dd>
+<span class="refAuthor">Reddy.K, T.</span>, <span class="refAuthor">Banerjee, A.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"Post-Quantum Key Encapsulation Mechanisms (PQ KEMs) for COSE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-jose-pqc-kem-06</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-jose-pqc-kem-06">https://datatracker.ietf.org/doc/html/draft-ietf-jose-pqc-kem-06</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8949">[RFC8949]</dt>
+        <dd>
+<span class="refAuthor">Bormann, C.</span> and <span class="refAuthor">P. Hoffman</span>, <span class="refTitle">"Concise Binary Object Representation (CBOR)"</span>, <span class="seriesInfo">STD 94</span>, <span class="seriesInfo">RFC 8949</span>, <span class="seriesInfo">DOI 10.17487/RFC8949</span>, <time datetime="2020-12" class="refDate">December 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8949">https://www.rfc-editor.org/rfc/rfc8949</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9052">[RFC9052]</dt>
+        <dd>
+<span class="refAuthor">Schaad, J.</span>, <span class="refTitle">"CBOR Object Signing and Encryption (COSE): Structures and Process"</span>, <span class="seriesInfo">STD 96</span>, <span class="seriesInfo">RFC 9052</span>, <span class="seriesInfo">DOI 10.17487/RFC9052</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9052">https://www.rfc-editor.org/rfc/rfc9052</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9053">[RFC9053]</dt>
+        <dd>
+<span class="refAuthor">Schaad, J.</span>, <span class="refTitle">"CBOR Object Signing and Encryption (COSE): Initial Algorithms"</span>, <span class="seriesInfo">RFC 9053</span>, <span class="seriesInfo">DOI 10.17487/RFC9053</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9053">https://www.rfc-editor.org/rfc/rfc9053</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9964">[RFC9964]</dt>
+      <dd>
+<span class="refAuthor">Prorock, M.</span> and <span class="refAuthor">O. Steele</span>, <span class="refTitle">"ML-DSA for JSON Object Signing and Encryption (JOSE) and CBOR Object Signing and Encryption (COSE)"</span>, <span class="seriesInfo">RFC 9964</span>, <span class="seriesInfo">DOI 10.17487/RFC9964</span>, <time datetime="2026-05" class="refDate">May 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9964">https://www.rfc-editor.org/rfc/rfc9964</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-8.2">
+        <h3 id="name-informative-references">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="IANA.cose">[IANA.cose]</dt>
+        <dd>
+<span class="refAuthor">IANA</span>, <span class="refTitle">"CBOR Object Signing and Encryption (COSE)"</span>, <span>n.d.</span>, <span>&lt;<a href="https://www.iana.org/assignments/cose">https://www.iana.org/assignments/cose</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="NIST.IR.8545">[NIST.IR.8545]</dt>
+      <dd>
+<span class="refAuthor">National Institute of Standards and Technology</span>, <span class="refTitle">"Status Report on the Fourth Round of the NIST Post-Quantum Cryptography Standardization Process"</span>, <time datetime="2025-03" class="refDate">March 2025</time>, <span>&lt;<a href="https://doi.org/10.6028/NIST.IR.8545">https://doi.org/10.6028/NIST.IR.8545</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="examples">
+<section id="appendix-A">
+      <h2 id="name-examples">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-examples" class="section-name selfRef">Examples</a>
+      </h2>
+<p id="appendix-A-1">The following pseudocode illustrates field placement. <code>bstr(...)</code>
+means the byte-string value supplied by the named operation;
+<code>encode(...)</code> means CBOR encoding. Symbolic algorithm and header
+identifiers stand for integer assignments. These are not CBOR diagnostic
+notation, executable examples, or cryptographic test vectors.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">A future version of this specification will provide working
+examples.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+<div id="public-and-private-keys">
+<section id="appendix-A.1">
+        <h3 id="name-public-and-private-keys">
+<a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-public-and-private-keys" class="section-name selfRef">Public and Private Keys</a>
+        </h3>
+<p id="appendix-A.1-1">An HQC-1 Direct-mode public key is:<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A.1-2">
+<pre>
+{
+  1: 7,                         / kty: AKP /
+  3: TBD-HQC-1,                 / alg /
+ -1: bstr(public_key)           / 2241 octets /
+}
+</pre><a href="#appendix-A.1-2" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A.1-3">The corresponding private key adds <code>-2: bstr(seedKEM)</code> (32 octets).<a href="#appendix-A.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="direct-mode-with-a128gcm">
+<section id="appendix-A.2">
+        <h3 id="name-direct-mode-with-a128gcm">
+<a href="#appendix-A.2" class="section-number selfRef">A.2. </a><a href="#name-direct-mode-with-a128gcm" class="section-name selfRef">Direct Mode with A128GCM</a>
+        </h3>
+<div class="alignLeft art-text artwork" id="appendix-A.2-1">
+<pre>
+96([
+  encode({1: 1}),               / outer alg: A128GCM /
+  {5: bstr(iv)},                / 12-octet IV /
+  bstr(encrypted_content),      / includes authentication tag /
+  [
+    [
+      encode({1: TBD-HQC-1}),   / recipient protected /
+      {
+        4: bstr(recipient_kid),
+       -4: bstr(CT)            / 4433-octet HQC ciphertext /
+      },
+      null                     / no wrapped CEK /
+    ]
+  ]
+])
+</pre><a href="#appendix-A.2-1" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A.2-2">Here <code>SS'</code> is processed with KMAC256 to derive a 128-bit CEK.
+AlgorithmID in the KDF context is 1 (A128GCM).<a href="#appendix-A.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="wrap-mode-with-a256gcm">
+<section id="appendix-A.3">
+        <h3 id="name-wrap-mode-with-a256gcm">
+<a href="#appendix-A.3" class="section-number selfRef">A.3. </a><a href="#name-wrap-mode-with-a256gcm" class="section-name selfRef">Wrap Mode with A256GCM</a>
+        </h3>
+<div class="alignLeft art-text artwork" id="appendix-A.3-1">
+<pre>
+96([
+  encode({1: 3}),               / outer alg: A256GCM /
+  {5: bstr(iv)},                / 12-octet IV /
+  bstr(encrypted_content),
+  [
+    [
+      encode({1: TBD-HQC-5-KW}),
+      {
+        4: bstr(recipient_kid),
+       -4: bstr(CT)      / 14421-octet HQC ciphertext /
+      },
+      bstr(wrapped_cek)         / 40 octets for a 32-octet CEK /
+    ]
+  ]
+])
+</pre><a href="#appendix-A.3-1" class="pilcrow">¶</a>
+</div>
+<p id="appendix-A.3-2">Here the sender independently generates a 256-bit CEK. KMAC256 derives
+a 256-bit KEK, and A256KW wraps the CEK. AlgorithmID in the KDF context
+is -5 (A256KW). Additional recipients have independent encapsulations
+and wrapped copies of the same CEK.<a href="#appendix-A.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Hannes Tschofenig</span></div>
+<div dir="auto" class="left"><span class="org">University of the Bundeswehr Munich</span></div>
+<div dir="auto" class="left">
+<span class="postal-code">85577</span> <span class="locality">Neubiberg</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">Germany</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:hannes.tschofenig@gmx.net" class="email">hannes.tschofenig@gmx.net</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Tirumaleswar Reddy</span></div>
+<div dir="auto" class="left"><span class="org">Nokia</span></div>
+<div dir="auto" class="left">
+<span class="locality">Bangalore</span> </div>
+<div dir="auto" class="left"><span class="region">Karnataka</span></div>
+<div dir="auto" class="left"><span class="country-name">India</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:kondtir@gmail.com" class="email">kondtir@gmail.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
