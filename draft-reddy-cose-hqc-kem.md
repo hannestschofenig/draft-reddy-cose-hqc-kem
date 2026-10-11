@@ -6,8 +6,8 @@ category: std
 ipr: trust200902
 submissiontype: IETF
 v: 3
-area: Security
-workgroup: COSE
+area: "Security"
+workgroup: "CBOR Object Signing and Encryption"
 keyword:
 - COSE
 - HQC
